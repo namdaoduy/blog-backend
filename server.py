@@ -80,6 +80,17 @@ def login():
     response.headers['Content-Type'] = 'application/json'
     return response
 
+  session = DBSession()
+  profile = credentials['profileObj']
+  user = session.query(User).filter_by(id = profile['googleId']).first()
+  if (user is None):
+    newUser = User(id = profile['googleId'], 
+      name = profile['name'],
+      picture = profile['imageUrl'],
+      email = profile['email'])
+    session.add(newUser)
+    session.commit()
+
   encoded = jwt.encode({
     'user_id': credentials['profileObj']['googleId'],
     'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60*60*24)
@@ -91,6 +102,58 @@ def login():
   }), 200)
   response.headers['Content-Type'] = 'application/json'
   return response
+
+
+@app.route('/blogs')
+def get_all_blogs():
+  session = DBSession()
+  blogs = session.query(Blog).all()
+  return jsonify(success = True, data = [b.serialize for b in blogs])
+
+
+@app.route('/blog/<int:id>', methods=['GET'])
+def get_blog_by_id(id):
+  session = DBSession()
+  blog = session.query(Blog).filter_by(id = id).first()
+  return jsonify(success = True, data = blog.serialize)
+
+
+@app.route('/blog', methods=['POST'])
+@validate
+def post_blog(user_id):
+  req = request.get_json()
+  title = req['title']
+  body = req['body']
+  if (title is None or body is None):
+    return jsonify(success = False)
+  session = DBSession()
+  newBlog = Blog(title = title, body = body, user_id = user_id)
+  session.add(newBlog)
+  session.commit()
+  return jsonify(success = True)
+
+@app.route('/blog/<int:id>', methods=['PUT'])
+@validate
+def put_blog(user_id, id):
+  req = request.get_json()
+  title = req['title']
+  body = req['body']
+  session = DBSession()
+  editBlog = session.query(Blog).filter_by(id = id).first()
+  editBlog.title = title
+  editBlog.body = body
+  return jsonify(success = True)
+
+@app.route('/blog/<int:id>', methods=['DELETE'])
+@validate
+def delete_blog(user_id, id):
+  session = DBSession()
+  deleteBlog = session.query(Blog).filter_by(id = id).first()
+  session.delete(deleteBlog)
+  session.commit()
+  return jsonify(success = True)
+
+
 
 if __name__ == '__main__':
   app.debug = True
