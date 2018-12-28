@@ -117,6 +117,12 @@ def get_blog_by_id(id):
   blog = session.query(Blog).filter_by(id = id).first()
   return jsonify(success = True, data = blog.serialize)
 
+@app.route('/user/blogs/<int:user_id>', methods=['GET'])
+def get_blogs_by_user(user_id):
+  session = DBSession()
+  blogs = session.query(Blog).filter_by(user_id = user_id).all()
+  return jsonify(success = True, data = [b.serialize for b in blogs])
+
 
 @app.route('/blog', methods=['POST'])
 @validate
