@@ -45,7 +45,7 @@ def validate(fn):
 
 @app.route('/test')
 @validate
-def testServer(user_id):
+def test_server(user_id):
   response = make_response(json.dumps({'hello': user_id}), 200)
   response.headers['Content-Type'] = 'application/json'
   return response
