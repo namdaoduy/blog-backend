@@ -32,21 +32,21 @@ def validate(fn):
   def wrapper(*args, **kwargs):
     if not 'Authorization' in request.headers:
       abort(401)
-    user = None
+    user_id = None
     data = request.headers['Authorization'].encode('ascii','ignore')
     token = str.replace(str(data), 'Bearer ','')
     try:
-      user = jwt.decode(token, SECRET, algorithms=['HS256'])['sub']
+      user_id = jwt.decode(token, SECRET, algorithms=['HS256'])['user_id']
     except:
       abort(401)
-    return fn(user, *args, **kws)
+    return fn(user_id, *args, **kwargs)
   return wrapper
 
 
 @app.route('/test')
 @validate
-def testServer():
-  response = make_response(json.dumps({'hello': 'hi'}), 200)
+def testServer(user_id):
+  response = make_response(json.dumps({'hello': user_id}), 200)
   response.headers['Content-Type'] = 'application/json'
   return response
 
@@ -81,12 +81,12 @@ def login():
     return response
 
   encoded = jwt.encode({
-    'id': credentials['profileObj']['googleId'],
+    'user_id': credentials['profileObj']['googleId'],
     'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60*60*24)
   }, SECRET, algorithm='HS256')
 
   response = make_response(json.dumps({
-    'id': credentials['profileObj']['googleId'],
+    'user_id': credentials['profileObj']['googleId'],
     'access_token': encoded
   }), 200)
   response.headers['Content-Type'] = 'application/json'
