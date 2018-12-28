@@ -1,5 +1,8 @@
 from flask import Flask, request, redirect, jsonify, url_for, make_response, abort
+from flask_cors import CORS
 app = Flask(__name__)
+
+CORS(app)
 
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
