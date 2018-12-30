@@ -1,20 +1,16 @@
 from flask import Flask, request, jsonify, make_response, abort
 from flask_cors import CORS
-
-app = Flask(__name__)
-
-CORS(app)
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Blog
-
 import jwt
 from functools import wraps
-
 import json
 import httplib2
 import datetime
+
+app = Flask(__name__)
+CORS(app)
 
 SECRET = json.loads(open('credentials.json', 'r').read())
 CLIENT_ID = SECRET['web']['client_id']
@@ -29,7 +25,7 @@ DBSession = sessionmaker(bind=engine)
 def validate(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        if not 'Authorization' in request.headers:
+        if 'Authorization' not in request.headers:
             abort(401)
         user_id = None
         data = request.headers['Authorization'].encode('ascii', 'ignore')
@@ -83,12 +79,12 @@ def login():
     session = DBSession()
     profile = credentials['profileObj']
     user = session.query(User).filter_by(id=profile['googleId']).first()
-    if (user is None):
-        newUser = User(id=profile['googleId'],
-                       name=profile['name'],
-                       picture=profile['imageUrl'],
-                       email=profile['email'])
-        session.add(newUser)
+    if user is None:
+        new_user = User(id=profile['googleId'],
+                        name=profile['name'],
+                        picture=profile['imageUrl'],
+                        email=profile['email'])
+        session.add(new_user)
         session.commit()
 
     encoded = jwt.encode({
@@ -134,31 +130,31 @@ def post_blog(user_id):
     if title is None or body is None:
         return jsonify(success=False)
     session = DBSession()
-    newBlog = Blog(title=title, body=body, user_id=user_id)
-    session.add(newBlog)
+    new_blog = Blog(title=title, body=body, user_id=user_id)
+    session.add(new_blog)
     session.commit()
     return jsonify(success=True)
 
 
 @app.route('/blog/<int:id>', methods=['PUT'])
 @validate
-def put_blog(user_id, id):
+def put_blog(id):
     req = request.get_json()
     title = req['title']
     body = req['body']
     session = DBSession()
-    editBlog = session.query(Blog).filter_by(id=id).first()
-    editBlog.title = title
-    editBlog.body = body
+    edit_blog = session.query(Blog).filter_by(id=id).first()
+    edit_blog.title = title
+    edit_blog.body = body
     return jsonify(success=True)
 
 
 @app.route('/blog/<int:id>', methods=['DELETE'])
 @validate
-def delete_blog(user_id, id):
+def delete_blog(id):
     session = DBSession()
-    deleteBlog = session.query(Blog).filter_by(id=id).first()
-    session.delete(deleteBlog)
+    deleting_blog = session.query(Blog).filter_by(id=id).first()
+    session.delete(deleting_blog)
     session.commit()
     return jsonify(success=True)
 
