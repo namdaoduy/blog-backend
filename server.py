@@ -138,22 +138,23 @@ def post_blog(user_id):
 
 @app.route('/blog/<int:id>', methods=['PUT'])
 @validate
-def put_blog(id):
+def put_blog(user_id, id):
     req = request.get_json()
     title = req['title']
     body = req['body']
     session = DBSession()
-    edit_blog = session.query(Blog).filter_by(id=id).first()
+    edit_blog = session.query(Blog).filter_by(id=id, user_id=user_id).first()
     edit_blog.title = title
     edit_blog.body = body
+    session.commit()
     return jsonify(success=True)
 
 
 @app.route('/blog/<int:id>', methods=['DELETE'])
 @validate
-def delete_blog(id):
+def delete_blog(user_id, id):
     session = DBSession()
-    deleting_blog = session.query(Blog).filter_by(id=id).first()
+    deleting_blog = session.query(Blog).filter_by(user_id=user_id, id=id).first()
     session.delete(deleting_blog)
     session.commit()
     return jsonify(success=True)
