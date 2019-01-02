@@ -1,7 +1,7 @@
 from flask import jsonify
 
 from main import app
-ç
+from main.libs.dbsession import DBSession
 from main.models.blog import Blog
 
 
@@ -17,4 +17,3 @@ def get_blog_by_id(id):
     session = DBSession()
     blog = session.query(Blog).filter_by(id=id).first()
     return jsonify(success=True, data=blog.serialize)
-

@@ -10,6 +10,8 @@ from main.cfg.local import config
 from main.libs.dbsession import DBSession
 from main.models.user import User
 
+from main.schemas.auth import AccessTokenSchema
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -56,7 +58,7 @@ def login():
         'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 24)
     }, config.JWT_SECRET_KEY, algorithm='HS256')
 
-    response = make_response(json.dumps({
+    response = make_response(AccessTokenSchema().jsonify({
         'user_id': credentials['profileObj']['googleId'],
         'access_token': encoded
     }), 200)
