@@ -1,8 +1,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Text
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
 from sqlalchemy.sql import func
+
+from main.cfg.local import config
 
 Base = declarative_base()
 
@@ -43,6 +45,6 @@ class Blog(Base):
         }
 
 
-engine = create_engine('mysql+mysqlconnector://root:123456@localhost:3306/just_blog')
+engine = create_engine(config.MYSQL_URL)
 
 Base.metadata.create_all(engine)

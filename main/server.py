@@ -1,46 +1,27 @@
-from flask import Flask, request, jsonify, make_response, abort
+import datetime
+import json
+
+import httplib2
+import jwt
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from database_setup import Base, User, Blog
-import jwt
-from functools import wraps
-import json
-import httplib2
-import datetime
+from main.cfg.local import config
+from main.libs.auth import authorization
 
 app = Flask(__name__)
 CORS(app)
 
-SECRET = json.loads(open('credentials.json', 'r').read())
-CLIENT_ID = SECRET['web']['client_id']
-APPLICATION_NAME = "just-blog-namdaoduy"
-SECRET = "something"
-
-engine = create_engine('mysql+mysqlconnector://root:123456@localhost:3306/just_blog')
+engine = create_engine(config.MYSQL_URL)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 
 
-def validate(fn):
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        if 'Authorization' not in request.headers:
-            abort(401)
-        user_id = None
-        data = request.headers['Authorization'].encode('ascii', 'ignore')
-        token = str.replace(str(data), 'Bearer ', '')
-        try:
-            user_id = jwt.decode(token, SECRET, algorithms=['HS256'])['user_id']
-        except:
-            abort(401)
-        return fn(user_id, *args, **kwargs)
-
-    return wrapper
-
-
 @app.route('/test')
-@validate
+@authorization
 def test_server(user_id):
     response = make_response(json.dumps({'hello': user_id}), 200)
     response.headers['Content-Type'] = 'application/json'
@@ -53,7 +34,7 @@ def login():
 
     # Check that the access token is valid.
     access_token = credentials['accessToken']
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+    url = (config.GOOGLE_TOKEN_VERIFY_STRING % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
 
@@ -71,7 +52,7 @@ def login():
         return response
 
     # Verify that the access token is valid for this app.
-    if result['issued_to'] != CLIENT_ID:
+    if result['issued_to'] != config.GOOGLE_CLIENT_ID:
         response = make_response(json.dumps({'error': 'Wrong app'}), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -90,7 +71,7 @@ def login():
     encoded = jwt.encode({
         'user_id': credentials['profileObj']['googleId'],
         'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 24)
-    }, SECRET, algorithm='HS256')
+    }, config.JWT_SECRET_KEY, algorithm='HS256')
 
     response = make_response(json.dumps({
         'user_id': credentials['profileObj']['googleId'],
@@ -122,7 +103,7 @@ def get_blogs_by_user(user_id):
 
 
 @app.route('/blog', methods=['POST'])
-@validate
+@authorization
 def post_blog(user_id):
     req = request.get_json()
     title = req['title']
@@ -137,7 +118,7 @@ def post_blog(user_id):
 
 
 @app.route('/blog/<int:id>', methods=['PUT'])
-@validate
+@authorization
 def put_blog(user_id, id):
     req = request.get_json()
     title = req['title']
@@ -151,7 +132,7 @@ def put_blog(user_id, id):
 
 
 @app.route('/blog/<int:id>', methods=['DELETE'])
-@validate
+@authorization
 def delete_blog(user_id, id):
     session = DBSession()
     deleting_blog = session.query(Blog).filter_by(user_id=user_id, id=id).first()
