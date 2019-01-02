@@ -4,17 +4,11 @@ import json
 import httplib2
 import jwt
 from flask import request, make_response
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from main import app
 from main.cfg.local import config
-from main.models.base import Base
+from main.libs.dbsession import DBSession
 from main.models.user import User
-
-engine = create_engine(config.MYSQL_URL)
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
 
 
 @app.route('/login', methods=['POST'])

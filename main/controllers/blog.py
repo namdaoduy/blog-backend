@@ -1,15 +1,8 @@
 from flask import jsonify
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from main import app
-from main.cfg.local import config
-from main.models.base import Base
+ç
 from main.models.blog import Blog
-
-engine = create_engine(config.MYSQL_URL)
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
 
 
 @app.route('/blogs')
