@@ -1,9 +1,11 @@
 from flask import request, jsonify
+from marshmallow import pprint
 
 from main import app
 from main.libs.auth import authorization
 from main.libs.dbsession import DBSession
 from main.models.blog import Blog
+from main.models.like import Like
 from main.schemas.user import BlogSchema
 
 
@@ -19,10 +21,11 @@ def get_blogs_by_user(user_id):
 def post_blog(user_id):
     schema = BlogSchema()
     req = schema.load(request.get_json())
-    if req.errors is not None:
+    if len(req.errors) > 0:
         return jsonify(req.errors)
+    pprint(req)
     session = DBSession()
-    new_blog = Blog(title=req.title, body=req.body, user_id=user_id)
+    new_blog = Blog(title=req.data["title"], body=req.data["body"], user_id=user_id)
     session.add(new_blog)
     session.commit()
     return jsonify(success=True)
@@ -33,14 +36,14 @@ def post_blog(user_id):
 def put_blog(user_id, id):
     schema = BlogSchema()
     req = schema.load(request.get_json())
-    if req.errors is not None:
+    if len(req.errors) > 0:
         return jsonify(req.errors)
     session = DBSession()
     edit_blog = session.query(Blog).filter_by(id=id, user_id=user_id).first()
     if edit_blog is None:
         return jsonify(error=True)
-    edit_blog.title = req.title
-    edit_blog.body = req.body
+    edit_blog.title = req.data["title"]
+    edit_blog.body = req.data["body"]
     session.commit()
     return jsonify(success=True)
 
@@ -53,5 +56,15 @@ def delete_blog(user_id, id):
     if deleting_blog is None:
         return jsonify(error=True)
     session.delete(deleting_blog)
+    session.commit()
+    return jsonify(success=True)
+
+
+@app.route('/like/blog/<int:blog_id>', methods=['GET'])
+@authorization
+def like_blog(user_id, blog_id):
+    session = DBSession()
+    like = Like(user_id=user_id, blog_id=blog_id)
+    session.add(like)
     session.commit()
     return jsonify(success=True)
