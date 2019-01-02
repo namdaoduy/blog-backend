@@ -1,5 +1,4 @@
 from flask import request, jsonify
-from marshmallow import pprint
 
 from main import app
 from main.libs.auth import authorization
@@ -23,7 +22,6 @@ def post_blog(user_id):
     req = schema.load(request.get_json())
     if len(req.errors) > 0:
         return jsonify(req.errors)
-    pprint(req)
     session = DBSession()
     new_blog = Blog(title=req.data["title"], body=req.data["body"], user_id=user_id)
     session.add(new_blog)
