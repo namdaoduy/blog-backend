@@ -8,7 +8,7 @@ from main.models.blog import Blog
 @app.route('/blogs')
 def get_all_blogs():
     session = DBSession()
-    blogs = session.query(Blog).all()
+    blogs = session.query(Blog).order_by(Blog.created_at.desc()).all()
     return jsonify(success=True, data=[b.serialize for b in blogs])
 
 
