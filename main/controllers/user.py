@@ -4,8 +4,20 @@ from main import app
 from main.libs.auth import authorization
 from main.libs.dbsession import DBSession
 from main.models.blog import Blog
+from main.models.user import User
 from main.models.like import Like
-from main.schemas.user import BlogSchema
+from main.schemas.blog import BlogSchema
+from main.schemas.user import UserSchema
+
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_user_info(user_id):
+    session = DBSession()
+    user = session.query(User).filter_by(id=user_id).first()
+    if user is None:
+        return jsonify(error=True)
+    schema = UserSchema()
+    return schema.jsonify(user)
 
 
 @app.route('/users/<int:user_id>/blogs', methods=['GET'])
