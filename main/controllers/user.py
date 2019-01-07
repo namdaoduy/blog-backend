@@ -4,8 +4,8 @@ from main import app
 from main.libs.auth import authorization
 from main.libs.dbsession import DBSession
 from main.models.blog import Blog
-from main.models.user import User
 from main.models.like import Like
+from main.models.user import User
 from main.schemas.blog import BlogSchema
 from main.schemas.user import UserSchema
 

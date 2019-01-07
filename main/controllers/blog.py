@@ -3,14 +3,12 @@ from flask import jsonify
 from main import app
 from main.libs.dbsession import DBSession
 from main.models.blog import Blog
-from main.schemas.blog import BlogSchema
 
 
 @app.route('/blogs')
 def get_all_blogs():
     session = DBSession()
     blogs = session.query(Blog).all()
-    return
     return jsonify(success=True, data=[b.serialize for b in blogs])
 
 
