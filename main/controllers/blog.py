@@ -17,3 +17,10 @@ def get_blog_by_id(blog_id):
     session = DBSession()
     blog = session.query(Blog).filter_by(id=blog_id).first()
     return jsonify(success=True, data=blog.serialize)
+
+
+@app.route('/blogs/trending')
+def get_trending_blogs():
+    session = DBSession()
+    blogs = session.query(Blog).order_by(Blog.like.desc()).limit(3).all()
+    return jsonify(success=True, data=[b.serialize for b in blogs])
