@@ -1,5 +1,26 @@
-## Just Blog - Fullstack Blog Project
----
+# Just Blog REST API
+## Fullstack Blog Web Application
+
+### Introduction
+This is a part of Full-stack Blog Project named _Just Blog_.
+This REST API Server uses:
+- [X] Flask
+- [X] MySQL
+- [X] SQLAlchemy
+- [X] Google OAuth 2.0
+- [X] JWT
+- [X] Marshmallow
+
+What I've done:
+- [X] Login with Google
+- [X] JWT for Authorization
+- [X] CRUD Blogs
+- [X] Like Blogs
+
+Ongoing Issues:
+- [ ] Migrate from SQLAlchemy to Flask-SQLAlchemy
+- [ ] BUG: error when client sends 2 request at a same time
+
 ### Installation and Setup
 Install [Python 2.7](https://www.python.org/download/releases/2.7/) and [pip](https://pypi.python.org/pypi/pip) and clone this project:
 
