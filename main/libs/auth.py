@@ -16,6 +16,7 @@ def authorization(fn):
         try:
             user_id = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=['HS256'])['user_id']
         except:
+            # use another function to response JSON
             abort(401)
         return fn(user_id, *args, **kwargs)
     return wrapper

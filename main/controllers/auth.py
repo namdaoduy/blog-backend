@@ -53,14 +53,16 @@ def login():
         session.add(new_user)
         session.commit()
 
-    encoded = jwt.encode({
+    # varialble name nonsense
+    access_token = jwt.encode({
         'user_id': credentials['profileObj']['googleId'],
+        # use google_id variable
         'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 24)
     }, config.JWT_SECRET_KEY, algorithm='HS256')
 
     response = make_response(AccessTokenSchema().jsonify({
         'user_id': credentials['profileObj']['googleId'],
-        'access_token': encoded
+        'access_token': access_token
     }), 200)
     response.headers['Content-Type'] = 'application/json'
     return response

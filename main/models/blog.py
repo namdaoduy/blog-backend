@@ -8,6 +8,7 @@ from main.models.user import User
 
 
 class Blog(Base):
+    # dont use 's'
     __tablename__ = 'blogs'
 
     id = Column(Integer, primary_key=True)

@@ -27,12 +27,15 @@ def get_blogs_by_user(user_id):
     return jsonify(success=True, data=[b.serialize for b in blogs])
 
 
+# move to blog.py
 @app.route('/blogs', methods=['POST'])
 @authorization
 def post_blog(user_id):
     schema = BlogSchema()
+    # req name??
     req = schema.load(request.get_json())
     if len(req.errors) > 0:
+        #
         return jsonify(req.errors)
     session = DBSession()
     new_blog = Blog(title=req.data["title"], body=req.data["body"], user_id=user_id)
@@ -51,7 +54,9 @@ def put_blog(user_id, blog_id):
     session = DBSession()
     edit_blog = session.query(Blog).filter_by(id=blog_id, user_id=user_id).first()
     if edit_blog is None:
+        # Which error? action prohibit or blog not found??
         return jsonify(error=True)
+    # use '' for all, not ""
     edit_blog.title = req.data["title"]
     edit_blog.body = req.data["body"]
     session.commit()
@@ -70,10 +75,13 @@ def delete_blog(user_id, blog_id):
     return jsonify(success=True)
 
 
+# use likes, and POST instead of GET
+# write another decorator to check valid blog
 @app.route('/blogs/<int:blog_id>/like', methods=['GET'])
 @authorization
 def like_blog(user_id, blog_id):
     session = DBSession()
+    # check if liked? before add like
     like = Like(user_id=user_id, blog_id=blog_id)
     session.add(like)
     session.commit()
