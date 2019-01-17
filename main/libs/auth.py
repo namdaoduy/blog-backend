@@ -1,22 +1,21 @@
 from functools import wraps
 import jwt
-from flask import request, abort
+from flask import request
 from main.cfg.local import config
+from main import errors
 
 
 def authorization(fn):
-    """ Check Authorization Header, add user_id as 1st param """
+    """Check Authorization Header, add user_id as 1st param"""
     @wraps(fn)
     def wrapper(*args, **kwargs):
         if 'Authorization' not in request.headers:
-            abort(401)
-        user_id = None
+            raise errors.Unauthorized()
         data = request.headers['Authorization'].encode('ascii', 'ignore')
         token = str.replace(str(data), 'Bearer ', '')
         try:
             user_id = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=['HS256'])['user_id']
-        except:
-            # use another function to response JSON
-            abort(401)
+        except Exception:
+            raise errors.Unauthorized()
         return fn(user_id, *args, **kwargs)
     return wrapper
