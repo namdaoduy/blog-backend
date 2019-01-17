@@ -8,6 +8,7 @@ from flask import request, make_response
 from main import app
 from main.cfg.local import config
 from main.libs.dbsession import DBSession
+from main.libs.database import db
 from main.models.user import User
 
 from main.schemas.auth import AccessTokenSchema
@@ -42,16 +43,16 @@ def login():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    session = DBSession()
+    # session = DBSession()
     profile = credentials['profileObj']
-    user = session.query(User).filter_by(id=profile['googleId']).first()
+    user = db.session.query(User).filter_by(id=profile['googleId']).first()
     if user is None:
         new_user = User(id=profile['googleId'],
                         name=profile['name'],
                         picture=profile['imageUrl'],
                         email=profile['email'])
-        session.add(new_user)
-        session.commit()
+        db.session.add(new_user)
+        db.session.commit()
 
     # varialble name nonsense
     access_token = jwt.encode({

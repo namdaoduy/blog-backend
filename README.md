@@ -53,7 +53,11 @@ Create a local development database:
 
 Run database migrations:
 
-    $ python database_setup.py
+    $ python manage.py db upgrade
+    
+To create database migrations after changing models:
+
+    $ python manage.py db migrate
     
 ### Local Development
 

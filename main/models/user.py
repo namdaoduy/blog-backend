@@ -1,11 +1,10 @@
-from sqlalchemy import Column, String
-from main.models.base import Base
+from main.libs.database import db
 
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'users'
 
-    id = Column(String(1000), primary_key=True)
-    name = Column(String(1000), nullable=False)
-    email = Column(String(1000), nullable=False)
-    picture = Column(String(1000), nullable=False)
+    id = db.Column(db.String(1000), primary_key=True)
+    name = db.Column(db.String(1000), nullable=False)
+    email = db.Column(db.String(1000), nullable=False)
+    picture = db.Column(db.String(1000), nullable=False)
