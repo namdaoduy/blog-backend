@@ -3,7 +3,7 @@ class _Config(object):
     JWT_SECRET_KEY = 'A very very secret key!'
 
     # MySQL Database
-    MYSQL_URL = 'mysql+mysqlconnector://root:123456@localhost:3306/just_blog'
+    MYSQL_URL = 'mysql://root:123456@localhost:3306/just_blog'
 
     # Google Login Secret
     GOOGLE_CLIENT_ID = "106660850039-0qrna09hm090hl6n6k9g01ao77fijt2l.apps.googleusercontent.com"
