@@ -17,9 +17,7 @@ def get_all_blogs():
     blogs_page = db.session.query(Blog)\
         .order_by(Blog.created_at.desc())\
         .paginate(page, config.BLOG_PAGING_LIMIT, error_out=False)
-    print blogs_page.items
     blogs = blogs_page.items
-    # use schema
     response = BlogSchema().jsonify(b.serialize for b in blogs)
     return response
 
@@ -33,12 +31,12 @@ def get_blog_by_id(blog_id):
 # use param
 @app.route('/blogs/trending')
 def get_trending_blogs():
-    # use CONSTANT for limit
     blogs = db.session.query(Blog)\
         .order_by(Blog.like.desc())\
         .limit(config.BLOG_TRENDING_LIMIT)\
         .all()
-    return jsonify(success=True, data=[b.serialize for b in blogs])
+    response = BlogSchema().jsonify(b.serialize for b in blogs)
+    return response
 
 # use HTTP code instead of success = True
 
