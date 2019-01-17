@@ -7,7 +7,6 @@ from flask import request, make_response
 
 from main import app
 from main.cfg.local import config
-from main.libs.dbsession import DBSession
 from main.libs.database import db
 from main.models.user import User
 
@@ -17,9 +16,11 @@ from main.schemas.auth import AccessTokenSchema
 @app.route('/login', methods=['POST'])
 def login():
     credentials = request.get_json()
+    access_token = credentials['accessToken']
+    gplus_id = credentials['googleId']
+    profile = credentials['profileObj']
 
     # Check that the access token is valid.
-    access_token = credentials['accessToken']
     url = (config.GOOGLE_TOKEN_VERIFY_STRING % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
@@ -31,7 +32,6 @@ def login():
         return response
 
     # Verify that the access token is used for the intended user.
-    gplus_id = credentials['googleId']
     if result['user_id'] != gplus_id:
         response = make_response(json.dumps({'error': 'Wrong user'}), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -43,8 +43,6 @@ def login():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    # session = DBSession()
-    profile = credentials['profileObj']
     user = db.session.query(User).filter_by(id=profile['googleId']).first()
     if user is None:
         new_user = User(id=profile['googleId'],
@@ -54,15 +52,13 @@ def login():
         db.session.add(new_user)
         db.session.commit()
 
-    # varialble name nonsense
     access_token = jwt.encode({
-        'user_id': credentials['profileObj']['googleId'],
-        # use google_id variable
+        'user_id': gplus_id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 24)
     }, config.JWT_SECRET_KEY, algorithm='HS256')
 
     response = make_response(AccessTokenSchema().jsonify({
-        'user_id': credentials['profileObj']['googleId'],
+        'user_id': gplus_id,
         'access_token': access_token
     }), 200)
     response.headers['Content-Type'] = 'application/json'
