@@ -1,5 +1,5 @@
 from flask import jsonify
-from marshmallow import post_dump, Schema, fields, post_load
+from marshmallow import post_dump, Schema
 
 
 class BaseSchema(Schema):
@@ -11,7 +11,7 @@ class BaseSchema(Schema):
             'success': True
         }
 
-    def jsonify(self, obj, many=False):
+    def jsonify(self, obj, many=True):
         return jsonify(self.dump(obj, many).data)
 
 

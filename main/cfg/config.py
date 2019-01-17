@@ -15,3 +15,7 @@ class _Config(object):
     GOOGLE_CLIENT_SECRET = 'kdhw2N_30s2p8oUvnOJUtfL0'
     GOOGLE_JAVASCRIPT_ORIGIN = 'http://localhost:3002'
     GOOGLE_TOKEN_VERIFY_STRING = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+
+    # Blog
+    BLOG_TRENDING_LIMIT = 3
+    BLOG_PAGING_LIMIT = 10

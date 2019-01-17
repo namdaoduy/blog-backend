@@ -7,13 +7,21 @@ from main.models.blog import Blog
 from main.models.like import Like
 from main.schemas.blog import BlogSchema
 
+from main.cfg.local import config
+
 
 # paging
 @app.route('/blogs')
 def get_all_blogs():
-    blogs = db.session.query(Blog).order_by(Blog.created_at.desc()).all()
+    page = request.args.get('page') or 1
+    blogs_page = db.session.query(Blog)\
+        .order_by(Blog.created_at.desc())\
+        .paginate(page, config.BLOG_PAGING_LIMIT, error_out=False)
+    print blogs_page.items
+    blogs = blogs_page.items
     # use schema
-    return jsonify(success=True, data=[b.serialize for b in blogs])
+    response = BlogSchema().jsonify(b.serialize for b in blogs)
+    return response
 
 
 @app.route('/blogs/<int:blog_id>', methods=['GET'])
@@ -26,7 +34,10 @@ def get_blog_by_id(blog_id):
 @app.route('/blogs/trending')
 def get_trending_blogs():
     # use CONSTANT for limit
-    blogs = db.session.query(Blog).order_by(Blog.like.desc()).limit(3).all()
+    blogs = db.session.query(Blog)\
+        .order_by(Blog.like.desc())\
+        .limit(config.BLOG_TRENDING_LIMIT)\
+        .all()
     return jsonify(success=True, data=[b.serialize for b in blogs])
 
 # use HTTP code instead of success = True
@@ -53,7 +64,9 @@ def put_blog(user_id, blog_id):
     blog_valid = schema.load(request.get_json())
     if len(blog_valid.errors) > 0:
         return jsonify(blog_valid.errors)
-    edit_blog = db.session.query(Blog).filter_by(id=blog_id, user_id=user_id).first()
+    edit_blog = db.session.query(Blog)\
+        .filter_by(id=blog_id, user_id=user_id)\
+        .first()
     if edit_blog is None:
         # Which error? action prohibit or blog not found??
         return jsonify(error=True)
@@ -66,7 +79,9 @@ def put_blog(user_id, blog_id):
 @app.route('/blogs/<int:blog_id>', methods=['DELETE'])
 @authorization
 def delete_blog(user_id, blog_id):
-    deleting_blog = db.session.query(Blog).filter_by(user_id=user_id, id=blog_id).first()
+    deleting_blog = db.session.query(Blog)\
+        .filter_by(user_id=user_id, id=blog_id)\
+        .first()
     if deleting_blog is None:
         return jsonify(error=True)
     db.session.delete(deleting_blog)

@@ -18,8 +18,8 @@ What I've done:
 - [X] Like Blogs
 
 Ongoing Issues:
-- [ ] Migrate from SQLAlchemy to Flask-SQLAlchemy
-- [ ] BUG: error when client sends 2 request at a same time
+- [X] Migrate from SQLAlchemy to Flask-SQLAlchemy
+- [X] BUG: error when client sends 2 request at a same time
 
 ### Installation and Setup
 Install [Python 2.7](https://www.python.org/download/releases/2.7/) and [pip](https://pypi.python.org/pypi/pip) and clone this project:
