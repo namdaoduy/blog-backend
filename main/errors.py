@@ -7,6 +7,7 @@ from main import app
 
 
 class Error(Exception):
+    """Error class for handle errors"""
     def __init__(self, error_data=None):
         super(Error)
         self.error_data = error_data or {}
@@ -35,12 +36,16 @@ class StatusCode:
 class ErrorCode:
     BAD_REQUEST = 40000
     VALIDATION_ERROR = 40001
-    USER_ALREADY_EXISTS = 40002
-    USER_DOES_NOT_EXIST = 40003
-    METHOD_NOT_ALLOWED = 40007
+
     UNAUTHORIZED = 40100
+    INVALID_GOOGLE_ACCESS_TOKEN = 40101
+
     PERMISSION_DENIED = 40301
+
     NOT_FOUND = 40400
+
+    METHOD_NOT_ALLOWED = 40500
+
     INTERNAL_SERVER_ERROR = 50000
 
 
@@ -57,9 +62,17 @@ class MethodNotAllowed(Error):
 
 
 class Unauthorized(Error):
+    """Raise if request does not provide Authorization for protected route"""
     status_code = StatusCode.UNAUTHORIZED
     error_code = ErrorCode.UNAUTHORIZED
     error_message = 'Unauthorized'
+
+
+class InvalidGoogleAccessToken(Error):
+    """Raise if google login can not validate access token from user"""
+    status_code = StatusCode.UNAUTHORIZED
+    error_code = ErrorCode.INVALID_GOOGLE_ACCESS_TOKEN
+    error_message = 'Invalid Access Token'
 
 
 @app.errorhandler(404)

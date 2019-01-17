@@ -1,15 +1,15 @@
 import datetime
 import json
 
-import httplib2
 import jwt
-from flask import request, make_response
+import requests
+from flask import request
 
 from main import app
+from main import errors
 from main.cfg.local import config
 from main.libs.database import db
 from main.models.user import User
-
 from main.schemas.auth import AccessTokenSchema
 
 
@@ -22,27 +22,28 @@ def login():
 
     # Check that the access token is valid.
     url = (config.GOOGLE_TOKEN_VERIFY_STRING % access_token)
-    h = httplib2.Http()
-    result = json.loads(h.request(url, 'GET')[1])
+    resp = requests.get(url)
+    if not resp.status_code == 200:
+        raise errors.InvalidGoogleAccessToken()
+    # If OK, load result content
+    try:
+        result = json.loads(resp.content)
+    except ValueError:
+        raise errors.InvalidGoogleAccessToken()
 
     # If there was an error in the access token info, abort.
     if result.get('error') is not None:
-        response = make_response(json.dumps(result), 500)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        raise errors.InvalidGoogleAccessToken()
 
     # Verify that the access token is used for the intended user.
     if result['user_id'] != gplus_id:
-        response = make_response(json.dumps({'error': 'Wrong user'}), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        raise errors.Unauthorized()
 
     # Verify that the access token is valid for this app.
     if result['issued_to'] != config.GOOGLE_CLIENT_ID:
-        response = make_response(json.dumps({'error': 'Wrong app'}), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        raise errors.Unauthorized()
 
+    # Check if user not found, create new one
     user = db.session.query(User).filter_by(id=profile['googleId']).first()
     if user is None:
         new_user = User(id=profile['googleId'],
@@ -52,14 +53,14 @@ def login():
         db.session.add(new_user)
         db.session.commit()
 
+    # Make new access token
     access_token = jwt.encode({
         'user_id': gplus_id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60 * 60 * 24)
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=config.JWT_TIME_TO_LIVE)
     }, config.JWT_SECRET_KEY, algorithm='HS256')
 
-    response = make_response(AccessTokenSchema().jsonify({
+    response = AccessTokenSchema().jsonify({
         'user_id': gplus_id,
         'access_token': access_token
-    }), 200)
-    response.headers['Content-Type'] = 'application/json'
+    })
     return response
