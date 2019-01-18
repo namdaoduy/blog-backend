@@ -17,14 +17,15 @@ def get_all_blogs():
         .order_by(Blog.created_at.desc())\
         .paginate(page, config.BLOG_PAGING_LIMIT, error_out=False)
     blogs = blogs_page.items
-    response = BlogSchema().jsonify(b.serialize for b in blogs)
+    response = BlogSchema().jsonify(b.preview for b in blogs)
     return response
 
 
 @app.route('/blogs/<int:blog_id>', methods=['GET'])
 def get_blog_by_id(blog_id):
     blog = db.session.query(Blog).filter_by(id=blog_id).first()
-    return jsonify(success=True, data=blog.serialize)
+    response = BlogSchema().jsonify(blog.serialize, many=False)
+    return response
 
 
 # use param

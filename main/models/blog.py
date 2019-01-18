@@ -34,3 +34,14 @@ class Blog(db.Model):
             'author': self.user.name,
             'picture': self.user.picture
         }
+
+    @property
+    def preview(self):
+        """Return minimal data for listing only"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'body': self.body[0:100],
+            'created_at': self.created_at,
+            'author': self.user.name,
+        }
