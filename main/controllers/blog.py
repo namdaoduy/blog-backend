@@ -57,15 +57,15 @@ def post_blog(user_id):
 @authorization
 def put_blog(user_id, blog_id):
     schema = BlogSchema()
-    blog_valid = schema.load(request.get_json())
-    if len(blog_valid.errors) > 0:
-        return jsonify(blog_valid.errors)
-    edit_blog = db.session.query(Blog)\
-        .filter_by(id=blog_id, user_id=user_id)\
-        .first()
+    try:
+        blog_valid = schema.load(request.get_json())
+    except Exception:
+        raise errors.InvalidInputBlog()
+    edit_blog = db.session.query(Blog).filter_by(id=blog_id, user_id=user_id).first()
     if edit_blog is None:
-        # Which error? action prohibit or blog not found??
-        return jsonify(error=True)
+        raise errors.NotFound()
+    if edit_blog.user_id != user_id:
+        raise errors.PermissionDenied()
     edit_blog.title = blog_valid.data['title']
     edit_blog.body = blog_valid.data['body']
     db.session.commit()

@@ -68,6 +68,13 @@ class Unauthorized(Error):
     error_message = 'Unauthorized'
 
 
+class PermissionDenied(Error):
+    """Raise if user_id is not match with resource's user_id"""
+    status_code = StatusCode.FORBIDDEN
+    error_code = ErrorCode.PERMISSION_DENIED
+    error_message = 'Permission Denied'
+
+
 class InvalidGoogleAccessToken(Error):
     """Raise if google login can not validate access token from user"""
     status_code = StatusCode.UNAUTHORIZED
