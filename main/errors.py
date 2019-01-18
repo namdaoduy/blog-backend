@@ -75,6 +75,13 @@ class InvalidGoogleAccessToken(Error):
     error_message = 'Invalid Access Token'
 
 
+class InvalidInputBlog(Error):
+    """Raise if can not valid updating blog from user"""
+    status_code = StatusCode.BAD_REQUEST
+    error_code = ErrorCode.VALIDATION_ERROR
+    error_message = 'Invalid Blog title or body'
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return NotFound().to_response()

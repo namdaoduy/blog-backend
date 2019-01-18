@@ -1,16 +1,16 @@
 from flask import jsonify, request
 
 from main import app
+from main import errors
+from main.cfg.local import config
 from main.libs.auth import authorization
 from main.libs.database import db
 from main.models.blog import Blog
 from main.models.like import Like
 from main.schemas.blog import BlogSchema
+from marshmallow import ValidationError
 
-from main.cfg.local import config
 
-
-# paging
 @app.route('/blogs')
 def get_all_blogs():
     page = request.args.get('page') or 1
@@ -38,17 +38,15 @@ def get_trending_blogs():
     response = BlogSchema().jsonify(b.serialize for b in blogs)
     return response
 
-# use HTTP code instead of success = True
 
-# move to blog.py
 @app.route('/blogs', methods=['POST'])
 @authorization
 def post_blog(user_id):
     schema = BlogSchema()
-    blog_valid = schema.load(request.get_json())
-    if len(blog_valid.errors) > 0:
-        #
-        return jsonify(blog_valid.errors)
+    try:
+        blog_valid = schema.load(request.get_json())
+    except Exception:
+        raise errors.InvalidInputBlog()
     new_blog = Blog(title=blog_valid.data["title"], body=blog_valid.data["body"], user_id=user_id)
     db.session.add(new_blog)
     db.session.commit()
@@ -89,7 +87,7 @@ def delete_blog(user_id, blog_id):
 
 # use likes, and POST instead of GET
 # write another decorator to check valid blog
-@app.route('/blogs/<int:blog_id>/like', methods=['GET'])
+@app.route('/blogs/<int:blog_id>/like', methods=['POST'])
 @authorization
 def like_blog(user_id, blog_id):
     # check if liked? before add like
