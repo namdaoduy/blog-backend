@@ -13,12 +13,15 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(1000), nullable=False)
     body = db.Column(db.Text, nullable=False)
-
     created_at = db.Column(db.DateTime, server_default=func.now())
     user_id = db.Column(db.String(1000), db.ForeignKey('users.id'))
+
     user = relationship(User)
     like = column_property(
         select([func.count(Like.id)]).where(Like.blog_id == id)
+    )
+    is_liked = column_property(
+        select([func.count(Like.id)]).where(Like.blog_id == id and Like.user_id == user_id)
     )
 
     @property
@@ -32,7 +35,8 @@ class Blog(db.Model):
             'created_at': self.created_at,
             'user_id': self.user_id,
             'author': self.user.name,
-            'picture': self.user.picture
+            'picture': self.user.picture,
+            'is_liked': self.is_liked
         }
 
     @property
