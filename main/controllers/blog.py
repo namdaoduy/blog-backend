@@ -61,7 +61,7 @@ def put_blog(user_id, blog_id):
         blog_valid = schema.load(request.get_json())
     except Exception:
         raise errors.InvalidInputBlog()
-    edit_blog = db.session.query(Blog).filter_by(id=blog_id, user_id=user_id).first()
+    edit_blog = db.session.query(Blog).filter_by(id=blog_id).first()
     if edit_blog is None:
         raise errors.NotFound()
     if edit_blog.user_id != user_id:
@@ -76,10 +76,12 @@ def put_blog(user_id, blog_id):
 @authorization
 def delete_blog(user_id, blog_id):
     deleting_blog = db.session.query(Blog)\
-        .filter_by(user_id=user_id, id=blog_id)\
+        .filter_by(id=blog_id)\
         .first()
     if deleting_blog is None:
-        return jsonify(error=True)
+        raise errors.NotFound()
+    if deleting_blog.user_id != user_id:
+        raise errors.PermissionDenied()
     db.session.delete(deleting_blog)
     db.session.commit()
     return jsonify(success=True)
