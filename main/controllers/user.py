@@ -1,9 +1,8 @@
-from flask import jsonify
-
 from main import app, errors
 from main.libs.database import db
 from main.models.blog import Blog
 from main.models.user import User
+from main.schemas.blog import BlogSchema
 from main.schemas.user import UserSchema
 
 
@@ -20,4 +19,5 @@ def get_user_info(user_id):
 @app.route('/users/<int:user_id>/blogs', methods=['GET'])
 def get_blogs_by_user(user_id):
     blogs = db.session.query(Blog).filter_by(user_id=user_id).all()
-    return jsonify(success=True, data=[b.serialize for b in blogs])
+    response = BlogSchema().jsonify(b.serialize for b in blogs)
+    return response
