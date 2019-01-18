@@ -19,5 +19,5 @@ def get_user_info(user_id):
 @app.route('/users/<int:user_id>/blogs', methods=['GET'])
 def get_blogs_by_user(user_id):
     blogs = db.session.query(Blog).filter_by(user_id=user_id).all()
-    response = BlogSchema().jsonify(b.serialize for b in blogs)
+    response = BlogSchema().jsonify((b.serialize for b in blogs), many=True)
     return response

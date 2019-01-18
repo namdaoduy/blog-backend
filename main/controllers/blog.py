@@ -17,14 +17,14 @@ def get_all_blogs():
         .order_by(Blog.created_at.desc())\
         .paginate(page, config.BLOG_PAGING_LIMIT, error_out=False)
     blogs = blogs_page.items
-    response = BlogSchema().jsonify(b.preview for b in blogs)
+    response = BlogSchema().jsonify((b.preview for b in blogs), many=True)
     return response
 
 
 @app.route('/blogs/<int:blog_id>', methods=['GET'])
 def get_blog_by_id(blog_id):
     blog = db.session.query(Blog).filter_by(id=blog_id).first()
-    response = BlogSchema().jsonify(blog.serialize, many=False)
+    response = BlogSchema().jsonify(blog.serialize)
     return response
 
 
@@ -35,7 +35,7 @@ def get_trending_blogs():
         .order_by(Blog.like.desc())\
         .limit(config.BLOG_TRENDING_LIMIT)\
         .all()
-    response = BlogSchema().jsonify(b.serialize for b in blogs)
+    response = BlogSchema().jsonify((b.serialize for b in blogs), many=True)
     return response
 
 

@@ -13,5 +13,5 @@ class BaseSchema(Schema):
             'success': True
         }
 
-    def jsonify(self, obj, many=True):
+    def jsonify(self, obj, many=False):
         return jsonify(self.dump(obj, many).data)
