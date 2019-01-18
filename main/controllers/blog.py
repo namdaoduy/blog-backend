@@ -3,7 +3,7 @@ from marshmallow import ValidationError
 
 from main import app
 from main import errors
-from main.cfg.local import config
+from main import config
 from main.libs.auth import authorization
 from main.libs.database import db
 from main.models.blog import Blog

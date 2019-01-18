@@ -7,7 +7,7 @@ from flask import request
 
 from main import app
 from main import errors
-from main.cfg.local import config
+from main import config
 from main.libs.database import db
 from main.models.user import User
 from main.schemas.auth import AccessTokenSchema

@@ -1,7 +1,7 @@
 from functools import wraps
 import jwt
 from flask import request
-from main.cfg.local import config
+from main import config
 from main import errors
 
 
