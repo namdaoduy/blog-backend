@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from marshmallow import ValidationError
 
 from main import app
 from main import errors
@@ -6,9 +7,7 @@ from main.cfg.local import config
 from main.libs.auth import authorization
 from main.libs.database import db
 from main.models.blog import Blog
-from main.models.like import Like
 from main.schemas.blog import BlogSchema
-from marshmallow import ValidationError
 
 
 @app.route('/blogs')

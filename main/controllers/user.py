@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from main import app
+from main import app, errors
 from main.libs.database import db
 from main.models.blog import Blog
 from main.models.user import User
@@ -11,9 +11,10 @@ from main.schemas.user import UserSchema
 def get_user_info(user_id):
     user = db.session.query(User).filter_by(id=user_id).first()
     if user is None:
-        return jsonify(error=True)
+        raise errors.UserNotFound()
     schema = UserSchema()
-    return schema.jsonify(user)
+    response = schema.jsonify(user)
+    return response
 
 
 @app.route('/users/<int:user_id>/blogs', methods=['GET'])

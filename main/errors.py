@@ -44,6 +44,7 @@ class ErrorCode:
     LIKE_EXISTED = 40302
 
     NOT_FOUND = 40400
+    USER_NOT_FOUND = 40401
 
     METHOD_NOT_ALLOWED = 40500
 
@@ -95,6 +96,13 @@ class LikeExisted(Error):
     status_code = StatusCode.FORBIDDEN
     error_code = ErrorCode.LIKE_EXISTED
     error_message = 'Blog is already liked'
+
+
+class UserNotFound(Error):
+    """Raise if user not found"""
+    status_code = StatusCode.NOT_FOUND
+    error_code = ErrorCode.USER_NOT_FOUND
+    error_message = 'User not found'
 
 
 @app.errorhandler(404)
