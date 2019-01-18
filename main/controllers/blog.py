@@ -75,9 +75,7 @@ def put_blog(user_id, blog_id):
 @app.route('/blogs/<int:blog_id>', methods=['DELETE'])
 @authorization
 def delete_blog(user_id, blog_id):
-    deleting_blog = db.session.query(Blog)\
-        .filter_by(id=blog_id)\
-        .first()
+    deleting_blog = db.session.query(Blog).filter_by(id=blog_id).first()
     if deleting_blog is None:
         raise errors.NotFound()
     if deleting_blog.user_id != user_id:

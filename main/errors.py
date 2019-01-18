@@ -41,6 +41,7 @@ class ErrorCode:
     INVALID_GOOGLE_ACCESS_TOKEN = 40101
 
     PERMISSION_DENIED = 40301
+    LIKE_EXISTED = 40302
 
     NOT_FOUND = 40400
 
@@ -87,6 +88,13 @@ class InvalidInputBlog(Error):
     status_code = StatusCode.BAD_REQUEST
     error_code = ErrorCode.VALIDATION_ERROR
     error_message = 'Invalid Blog title or body'
+
+
+class LikeExisted(Error):
+    """Raise if user trying to like a liked blog"""
+    status_code = StatusCode.FORBIDDEN
+    error_code = ErrorCode.LIKE_EXISTED
+    error_message = 'Blog is already liked'
 
 
 @app.errorhandler(404)
