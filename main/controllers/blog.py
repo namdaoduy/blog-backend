@@ -45,7 +45,7 @@ def post_blog(user_id):
     schema = BlogSchema()
     try:
         blog_valid = schema.load(request.get_json())
-    except Exception:
+    except ValidationError:
         raise errors.InvalidInputBlog()
     new_blog = Blog(title=blog_valid.data["title"], body=blog_valid.data["body"], user_id=user_id)
     db.session.add(new_blog)
@@ -59,7 +59,7 @@ def put_blog(user_id, blog_id):
     schema = BlogSchema()
     try:
         blog_valid = schema.load(request.get_json())
-    except Exception:
+    except ValidationError:
         raise errors.InvalidInputBlog()
     edit_blog = db.session.query(Blog).filter_by(id=blog_id).first()
     if edit_blog is None:
@@ -83,17 +83,5 @@ def delete_blog(user_id, blog_id):
     if deleting_blog.user_id != user_id:
         raise errors.PermissionDenied()
     db.session.delete(deleting_blog)
-    db.session.commit()
-    return jsonify(success=True)
-
-
-# use likes, and POST instead of GET
-# write another decorator to check valid blog
-@app.route('/blogs/<int:blog_id>/like', methods=['POST'])
-@authorization
-def like_blog(user_id, blog_id):
-    # check if liked? before add like
-    like = Like(user_id=user_id, blog_id=blog_id)
-    db.session.add(like)
     db.session.commit()
     return jsonify(success=True)
