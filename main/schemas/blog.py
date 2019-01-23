@@ -15,4 +15,4 @@ class BlogSchema(BaseSchema):
     user_id = fields.String()
     author = fields.String()
     picture = fields.String()
-    is_liked = fields.Integer()
+    is_liked = fields.Boolean()

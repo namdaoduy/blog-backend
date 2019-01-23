@@ -19,3 +19,20 @@ def authorization(fn):
             raise errors.Unauthorized()
         return fn(user_id, *args, **kwargs)
     return wrapper
+
+
+def optional_auth(fn):
+    """Return user_id if header contain access token, not raise UNAUTHORIZED"""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if 'Authorization' not in request.headers:
+            user_id = None
+            return fn(user_id, *args, **kwargs)
+        data = request.headers['Authorization'].encode('ascii', 'ignore')
+        token = str.replace(str(data), 'Bearer ', '')
+        try:
+            user_id = jwt.decode(token, config.JWT_SECRET_KEY, algorithms=['HS256'])['user_id']
+        except Exception:
+            user_id = None
+        return fn(user_id, *args, **kwargs)
+    return wrapper

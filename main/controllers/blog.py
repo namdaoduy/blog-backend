@@ -4,9 +4,10 @@ from marshmallow import ValidationError
 from main import app
 from main import errors
 from main import config
-from main.libs.auth import authorization
+from main.libs.auth import authorization, optional_auth
 from main.libs.database import db
 from main.models.blog import Blog
+from main.models.like import Like
 from main.schemas.blog import BlogSchema
 
 
@@ -22,8 +23,15 @@ def get_all_blogs():
 
 
 @app.route('/blogs/<int:blog_id>', methods=['GET'])
-def get_blog_by_id(blog_id):
+@optional_auth
+def get_blog_by_id(user_id, blog_id):
     blog = db.session.query(Blog).filter_by(id=blog_id).first()
+    is_liked = False
+    if user_id is not None:
+        existed_like = db.session.query(Like).filter_by(blog_id=blog_id, user_id=user_id).first()
+        if existed_like is not None:
+            is_liked = True
+    blog.is_liked = is_liked
     response = BlogSchema().jsonify(blog.serialize)
     return response
 

@@ -20,9 +20,7 @@ class Blog(db.Model):
     like = column_property(
         select([func.count(Like.id)]).where(Like.blog_id == id)
     )
-    is_liked = column_property(
-        select([func.count(Like.id)]).where(Like.blog_id == id and Like.user_id == user_id)
-    )
+    is_liked = False
 
     @property
     def serialize(self):
@@ -36,7 +34,7 @@ class Blog(db.Model):
             'user_id': self.user_id,
             'author': self.user.name,
             'picture': self.user.picture,
-            'is_liked': self.is_liked
+            'is_liked': self.is_liked,
         }
 
     @property
