@@ -5,7 +5,7 @@ from main import config
 
 
 class BlogSchema(BaseSchema):
-    id = fields.Integer()
+    id = fields.Integer(required=False)
     title = fields.String(validate=validate.Length(min=config.BLOG_TITLE_LENGTH_MIN,
                                                    max=config.BLOG_TITLE_LENGTH_MAX))
     body = fields.String(validate=validate.Length(min=config.BLOG_BODY_LENGTH_MIN,
