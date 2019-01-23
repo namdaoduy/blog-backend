@@ -1,1 +1,1 @@
-from . import auth, blog, user
+from . import auth, blog, user, like
