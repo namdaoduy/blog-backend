@@ -13,12 +13,23 @@ from main.schemas.blog import BlogSchema
 
 @app.route('/blogs')
 def get_all_blogs():
-    page = request.args.get('page') or 1
+    page = int(request.args.get('page') or 1)
     blogs_page = db.session.query(Blog)\
         .order_by(Blog.created_at.desc())\
         .paginate(page, config.BLOG_PAGING_LIMIT, error_out=False)
     blogs = blogs_page.items
-    response = BlogSchema().jsonify((b.preview for b in blogs), many=True)
+    data = {
+        'pagination': {
+            'total': blogs_page.pages,
+            'offset': blogs_page.page - 1,
+            'limit': blogs_page.per_page,
+        },
+        'blogs': [b.preview for b in blogs]
+    }
+    response = jsonify({
+        'data': data,
+        'success': True
+    })
     return response
 
 
