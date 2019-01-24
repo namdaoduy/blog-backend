@@ -20,8 +20,8 @@ def get_all_blogs():
     blogs = blogs_page.items
     data = {
         'pagination': {
-            'total': blogs_page.pages,
-            'offset': blogs_page.page - 1,
+            'total': blogs_page.total,
+            'offset': (blogs_page.page - 1) * blogs_page.per_page,
             'limit': blogs_page.per_page,
         },
         'blogs': [b.preview for b in blogs]
