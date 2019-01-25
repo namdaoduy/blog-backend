@@ -16,10 +16,13 @@ What I've done:
 - [X] JWT for Authorization
 - [X] CRUD Blogs
 - [X] Like Blogs
-
-Ongoing Issues:
 - [X] Migrate from SQLAlchemy to Flask-SQLAlchemy
 - [X] BUG: error when client sends 2 request at a same time
+- [X] Errors Handling module
+- [X] Database migration
+- [X] JSON request, response standardized
+
+Ongoing Issues:
 
 ### Installation and Setup
 Install [Python 2.7](https://www.python.org/download/releases/2.7/) and [pip](https://pypi.python.org/pypi/pip) and clone this project:
